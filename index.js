@@ -19,7 +19,7 @@ if (!process.env.PROXY_HOST || !process.env.PROXY_PORT) {
 net.createServer(function(socket) {
   var buffer = '';
   socket.on('connect', function() {
-    console.log('[' + Date.now().toUTCString() + '] ' + 'connect from ' + socket.remoteAddress);
+    console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress);
   });
   socket.on('data', function(data) {
     buffer += data.toString();
