@@ -1,4 +1,4 @@
-github-proxy
+connect-proxy
 ============
 
-relay server from internal to github.com
+This proxy server provids to relay http packet, when only 'CONNECT' method.
