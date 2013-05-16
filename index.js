@@ -17,10 +17,9 @@ if (!process.env.PROXY_HOST || !process.env.PROXY_PORT) {
 }
 
 net.createServer(function(socket) {
+  console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress);
+
   var buffer = '';
-  socket.on('connect', function() {
-    console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress);
-  });
   socket.on('data', function(data) {
     buffer += data.toString();
     if (buffer.indexOf('\r\n\r\n') > 0) {
@@ -40,6 +39,7 @@ net.createServer(function(socket) {
       proxy.pipe(socket);
     }
   });
+
   socket.on('error', function(err) {
     printError(err);
   });
