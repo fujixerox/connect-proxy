@@ -1,8 +1,8 @@
 /*
  * Copyright Fuji Xerox Co., Ltd. 2013 All rights reserved.
  *
- * relay server between local and github
- * local <--> internal <--> proxy <--> github
+ * TCP relay server between local and external using HTTP connect method.
+ *   i.e. local <--> internal <--> proxy <--> external
  */
 var http = require('http');
 var net  = require('net');
