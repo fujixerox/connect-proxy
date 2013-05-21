@@ -1,8 +1,8 @@
 /*
  * Copyright Fuji Xerox Co., Ltd. 2013 All rights reserved.
  *
- * relay server between local and github
- * local <--> internal <--> proxy <--> github
+ * TCP relay server between local and external using HTTP connect method.
+ *   i.e. local <--> internal <--> proxy <--> external
  */
 
 var net  = require('net');
@@ -19,15 +19,20 @@ if (!process.env.PROXY_HOST || !process.env.PROXY_PORT) {
 net.createServer(function(socket) {
   console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress);
 
-  var buffer = '';
-  socket.on('data', function(data) {
-    buffer += data.toString();
-    if (buffer.indexOf('\r\n\r\n') > 0) {
-      var captures = buffer.match(/^CONNECT ([^:]+):([0-9]+) HTTP\/1\.[01]/);
+  var data = '';
+  socket.on('readable', function() {
+    var buffer = socket.read();
+    if (!buffer) {
+      return;
+    }
+    data += buffer;
+    if (data.indexOf('\r\n\r\n') > 0) {
+      var captures = data.match(/^CONNECT ([^:]+):([0-9]+) HTTP\/1\.[01]/);
 
-      if (!captures || captures.length < 2)
+      if (!captures || captures.length < 2) {
         return;
-      socket.removeAllListeners('data');
+      }
+      socket.removeAllListeners('readable');
 
       var host = captures[1];
       var port = captures[2] || 22;
@@ -43,7 +48,7 @@ net.createServer(function(socket) {
   socket.on('error', function(err) {
     printError(err);
   });
-}).listen(8080, function() { console.log('Starting...') });
+}).listen(8080, function() { console.log('Starting...'); });
 
 function printError(err) {
   console.error('[' + new Date().toString() + '] ' + err);
