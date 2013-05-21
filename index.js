@@ -4,8 +4,9 @@
  * relay server between local and github
  * local <--> internal <--> proxy <--> github
  */
-
+var http = require('http');
 var net  = require('net');
+var url  = require('url');
 
 process.on('uncaughtException', function(err) {
   printError(err);
@@ -16,34 +17,22 @@ if (!process.env.PROXY_HOST || !process.env.PROXY_PORT) {
   process.exit(1);
 }
 
-net.createServer(function(socket) {
-  console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress);
+var destPort = 22;
+var port = 8080;
 
-  var buffer = '';
-  socket.on('data', function(data) {
-    buffer += data.toString();
-    if (buffer.indexOf('\r\n\r\n') > 0) {
-      var captures = buffer.match(/^CONNECT ([^:]+):([0-9]+) HTTP\/1\.[01]/);
-
-      if (!captures || captures.length < 2)
-        return;
-      socket.removeAllListeners('data');
-
-      var host = captures[1];
-      var port = captures[2] || 22;
-
-      var proxy = net.createConnection(process.env.PROXY_PORT, process.env.PROXY_HOST, function() {
-        proxy.write('CONNECT ' + host + ':' + port + " HTTP/1.0\r\n\r\n");
-      });
-      socket.pipe(proxy);
-      proxy.pipe(socket);
-    }
+http.createServer().on('connect', function(req, socket, head) {
+  var dest = url.parse('http://' + req.url);
+  console.log('[' + new Date().toString() + '] ' + 'connect from ' + socket.remoteAddress + ' to ' + req.url);
+  var proxy = net.createConnection(process.env.PROXY_PORT, process.env.PROXY_HOST, function() {
+    proxy.write('CONNECT ' + dest.host + ':' + (dest.port || destPort) + " HTTP/1.0\r\n\r\n");
+    proxy.write(head);
+    socket.pipe(proxy);
+    proxy.pipe(socket);
   });
-
-  socket.on('error', function(err) {
+  proxy.on('error', function(err) {
     printError(err);
   });
-}).listen(8080, function() { console.log('Starting...') });
+}).listen(port, function() { console.log('Starting...'); });
 
 function printError(err) {
   console.error('[' + new Date().toString() + '] ' + err);
