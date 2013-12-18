@@ -1,0 +1,28 @@
+{
+  "name": "connect-proxy",
+  "version": "0.0.1",
+  "description": "TCP relay server between local and external using HTTP connect method.",
+  "main": "index.js",
+  "bin": "./bin/connect-proxy",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fujixerox/connect-proxy.git"
+  },
+  "keywords": [
+    "connect",
+    "proxy",
+    "git"
+  ],
+  "author": "noda shinpei",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fujixerox/connect-proxy/issues"
+  },
+  "homepage": "https://github.com/fujixerox/connect-proxy",
+  "dependencies": {
+    "http-proxy": "~0.10.3"
+  }
+}
