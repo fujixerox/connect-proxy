@@ -4,10 +4,10 @@
  * TCP relay server between local and external using HTTP connect method.
  *   i.e. local <--> internal <--> proxy <--> external
  */
-var http         = require('http')
-  , net          = require('net')
-  , url          = require('url')
-  , whitelist    = require('./whitelist.json');
+var http      = require('http')
+  , net       = require('net')
+  , url       = require('url')
+  , whitelist = require('./whitelist.json');
 
 process.on('uncaughtException', function(err) {
   printError(err);
