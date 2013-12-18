@@ -19,7 +19,7 @@ if (!process.env.PROXY_HOST || !process.env.PROXY_PORT) {
 }
 
 var destPort   = 22;
-var serverPort = 8081;
+var serverPort = 8080;
 
 var server = http.createServer();
 server.on('connect', function(req, socket, head) {
