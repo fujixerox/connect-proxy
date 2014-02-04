@@ -81,6 +81,6 @@ function printError(err) {
 }
 
 function printConnectLog(req) {
-  var ipAddr = req.header('x-forwarded-for') || req.connection.remoteAddress;
+  var ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   console.log('[' + new Date().toUTCString() + '] ' + 'connect from ' + ipAddr + ' to ' + req.url);
 }
