@@ -1,8 +1,12 @@
 /*
- * Copyright Fuji Xerox Co., Ltd. 2013 All rights reserved.
+ * Copyright Fuji Xerox Co., Ltd. 2013-2014 All rights reserved.
  *
- * TCP relay server between local and external using HTTP connect method.
- *   i.e. local <--> internal <--> proxy <--> external
+ * If domain of target server is defined in white list, tis proxy server provides SSH connectivity
+ * between internal client and external server using HTTP connect method.
+ *   i.e. client <-SSH over HTTP-> this proxy <-SSH over HTTP-> upstream proxy <-SSH-> external ssh server.
+ *
+ * Otherwise, this server relays HTTP packets to internal git server.
+ *   i.e. client <-HTTP-> this proxy <-HTTP-> internal git server.
  */
 var http      = require('http')
   , net       = require('net')
@@ -28,15 +32,17 @@ var server = http.createServer(function(req, res) {
   var proxyReq = http.request({
     host: dest.hostname,
     port: dest.port,
-    path: req.url,
-    method: req.method,
+    path:    req.url,
+    method:  req.method,
     headers: req.headers
   }, function(proxyRes) {
     res.writeHead(proxyRes.statusCode, proxyRes.headers);
     proxyRes.pipe(res);
   });
   req.pipe(proxyReq);
-}).on('connect', function(req, socket, head) {    
+});
+
+server.on('connect', function(req, socket, head) {
   printConnectLog(req);
 
   var dest = url.parse('https://' + req.url);
@@ -61,17 +67,17 @@ var server = http.createServer(function(req, res) {
     socket.pipe(proxy);
     proxy.pipe(socket);
   });
-  proxy.on('error', function(err) {
+
+  function errorHandler(err) {
     printError(err);
     socket.end();
     proxy.end();
-  });
-  socket.on('error', function(err) {
-    printError(err);
-    socket.end();
-    proxy.end();
-  });
+  }
+
+  socket.on('error', errorHandler);
+  proxy.on('error', errorHandler);
 });
+
 server.listen(serverPort, function() {
   console.log('Starting...');
 });
@@ -81,6 +87,6 @@ function printError(err) {
 }
 
 function printConnectLog(req) {
-  var ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  console.log('[' + new Date().toUTCString() + '] ' + 'connect from ' + ipAddr + ' to ' + req.url);
+  var address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  console.log('[' + new Date().toUTCString() + '] ' + 'connect from ' + address + ' to ' + req.url);
 }
