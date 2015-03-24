@@ -1,6 +1,12 @@
 language: node_js
 node_js:
- - "0.10"
- - "0.12"
- - "iojs"
+- '0.10'
+- '0.12'
+- iojs
+
+after_success: npm run-script coveralls
+
+env:
+  global:
+    secure: aIRyrHf8GWvoJIUXiFUsC64Og64YvFjUb2rT5A4lHrhKKUTzaC7CtIZ1K9BgzQDZkDCBe6o4N7YC+wyPNQzIIP2k4P0DfP1yjsN7yR3vRK9nrfB+NffftDbqOPBbzewTkERzYHoDkoyTPpHN7+q568a0ycGVpBvEUfWzwuoCdpc=
 
