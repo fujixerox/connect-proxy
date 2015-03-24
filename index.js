@@ -11,7 +11,6 @@
 var http       = require('http')
   , net        = require('net')
   , url        = require('url')
-  , util       = require('util')
   , whitehosts = require('./whitelist.json')
   , whitelist  = (require('./lib/whitelist'))(whitehosts);
 
