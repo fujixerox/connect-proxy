@@ -37,7 +37,9 @@ describe('whitelist', function() {
       })
     })
 
-    tests.slice(4).forEach(function (test) {
+    tests.filter(function (test) {
+      return typeof test[0] === 'string';
+    }).forEach(function (test) {
       it('should return true when the white list contains wildcard and query is ' + test[0], function() {
         var wildcard = WhiteList([ '*' ]);
         wildcard.isWhite(test[0]).should.be.true
