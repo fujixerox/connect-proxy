@@ -6,19 +6,6 @@ describe('whitelist', function() {
   var hosts = [ 'github.com', 'bitbucket.com', '*.amazonaws.com' ];
   var whitelist = WhiteList(hosts);
 
-  describe('#init', function() {
-
-    it('should return 0 when the white list is initialized with not array', function() {
-      var emptyList = WhiteList({});
-      emptyList.length.should.be.empty
-    })
-
-    it('should return ' + hosts.length + ' when the white list is initialized with ' + hosts, function() {
-      whitelist.length.should.equal(hosts.length);
-    })
-
-  })
-
   describe('#isWhite', function() {
 
     it('should return false when the white list is initialized with empty array', function() {
