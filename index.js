@@ -8,10 +8,11 @@
  * Otherwise, this server relays HTTP packets to internal git server.
  *   i.e. client <-HTTP-> this proxy <-HTTP-> internal git server.
  */
-var http      = require('http')
-  , net       = require('net')
-  , url       = require('url')
-  , whitelist = require('./whitelist.json');
+var http       = require('http')
+  , net        = require('net')
+  , url        = require('url')
+  , whitehosts = require('./whitelist.json')
+  , whitelist  = (require('./lib/whitelist'))(whitehosts);
 
 process.on('uncaughtException', function(err) {
   printError(err);
@@ -47,7 +48,7 @@ server.on('connect', function(req, socket, head) {
 
   var dest = url.parse('https://' + req.url);
   var targetHost, targetPort, isWhite;
-  if (whitelist.indexOf(dest.hostname) === -1) {
+  if (!whitelist.isWhite(dest.hostname)) {
     targetHost = dest.hostname;
     targetPort = dest.port || 443;
     isWhite    = false;
