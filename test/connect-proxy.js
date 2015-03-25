@@ -7,7 +7,14 @@ var http    = require('http')
   , should  = require('should')
   , request = require('request');
 
+// Becasue this test use Self-Signed Certificate,
+// env NODE_TLS_REJECT_UNAUTHORIZED must be set 0
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+var httpsServerOpts = {
+  key: fs.readFileSync(path.join(__dirname, 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
+};
 
 describe('ConnectProxy', function() {
 
@@ -65,103 +72,93 @@ describe('ConnectProxy', function() {
     });
 
     var tests = [
-    { args: { protocol: http, isWhite: false }, expected: { throughs: [ 'proxyA' ] } },
-    { args: { protocol: http, isWhite: true }, expected: { throughs: [ 'proxyA' ] } },
-    { args: { protocol: https, isWhite: false }, expected: { throughs: [ 'proxyA' ] } },
-    { args: { protocol: https, isWhite: true }, expected: { throughs: [ 'proxyA', 'proxyB' ] } }
+    { args: { protocol: http, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+    { args: { protocol: http, isWhite: true }, expected: { throughs: [ 'downstream' ] } },
+    { args: { protocol: https, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+    { args: { protocol: https, isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
     ];
 
     tests.forEach(function (test) {
 
-      var server, proxyA, proxyB;
-      var throughs = [];
+      var actualThroughs = [];
 
+      var server, downstream, upstream;
       var isHttps = (test.args.protocol === https);
 
       beforeEach(function startServer(done) {
         if (isHttps) {
-          server = https.createServer({
-            key: fs.readFileSync(path.join(__dirname, 'key.pem')),
-            cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
-          });
+          server = https.createServer(httpsServerOpts);
         } else {
           server = http.createServer();
         }
 
         server.on('request', function (req, res) {
           res.end();
-        });
-        server.listen(function () {
+        }).listen(function () {
           done();
         });
       });
 
-      beforeEach(function startProxyB(done) {
-        proxyB = new Proxy();
-        proxyB.on('connect', function () {
-          throughs.push('proxyB');
+      beforeEach(function startUpStreamProxy(done) {
+        upstream = (new Proxy()).on('connect', function () {
+          actualThroughs.push('upstream');
         });
-        proxyB.listen(function () {
+        upstream.listen(function () {
           done();
         });
       });
 
-      beforeEach(function startProxyA(done) {
-        proxyA = new Proxy({
-          proxyHost: '127.0.0.1',
-          proxyPort: proxyB.address().port,
-          whiteHosts: test.args.isWhite ? [ '127.0.0.1' ] : []
+      beforeEach(function startDownStreamProxy(done) {
+        downstream = (new Proxy({
+          proxyHost: 'localhost',
+          proxyPort: upstream.address().port,
+          whiteHosts: test.args.isWhite ? [ 'localhost' ] : []
+        })).on('connect', function () {
+          actualThroughs.push('downstream');
         });
-        proxyA.on('connect', function () {
-          throughs.push('proxyA');
-        });
-        proxyA.listen(function () {
+        downstream.listen(function () {
           done();
         });
       });
 
       it('should be a success to access via ' + (isHttps ? 'https' : 'http') + ' to the host, which ' + (test.args.isWhite ? 'is' : 'isn\'t') + ' a white host' , function (done) {
 
-        var uri = (isHttps ? 'https' : 'http') + '://127.0.0.1:' + server.address().port;
-
+        var uri = (isHttps ? 'https' : 'http') + '://localhost:' + server.address().port;
         request({
           uri: uri,
-          proxy: 'http://127.0.0.1:' + proxyA.address().port
-        }, function(e, r, body) {
-          test.expected.throughs.should.eql(throughs);
+          proxy: 'http://localhost:' + downstream.address().port
+        }, function(err, res, body) {
+          (err == null).should.be.true;
+          (200).should.be.exactly(res.statusCode);
+          test.expected.throughs.should.eql(actualThroughs);
           done();
         });
       });
 
       afterEach(function () {
         server.close();
-        proxyA.close();
-        proxyB.close();
+        downstream.close();
+        upstream.close();
       });
     });
 
     it('should cause a error', function (done) {
-      var server = https.createServer({
-        key: fs.readFileSync(path.join(__dirname, 'key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
-      }).listen();
+      var server = https.createServer(httpsServerOpts).listen();
 
-      var proxy = new Proxy();
-      proxy.listen();
-      proxy.on('connect', function () {
+      var proxy = new Proxy()
+      .on('connect', function () {
         server.close();
         proxy.close();
-      });
-      proxy.on('error', function (err) {
+      }).on('error', function (err) {
         err.should.not.be.null;
         done();
       });
-
-      request({
-        uri: 'https://127.0.0.1:' + server.address().port,
-        proxy: 'http://127.0.0.1:' + proxy.address().port
-      }, function() {});
+      proxy.listen(function () {
+        request({
+          uri: 'https://localhost:' + server.address().port,
+          proxy: 'http://localhost:' + proxy.address().port
+        }, function() {});
+      });
     });
-
   });
 });
