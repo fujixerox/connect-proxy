@@ -3,7 +3,7 @@ var should = require('should');
 
 describe('whitelist', function() {
 
-  var hosts = [ 'github.com', 'bitbucket.com', '*.amazonaws.com' ];
+  var hosts = [ 'github.com', 'bitbucket.com', '*.amazonaws.com', '192.168.0.1', '10.0.0.*' ];
   var whitelist = WhiteList(hosts);
 
   describe('#isWhite', function() {
@@ -38,7 +38,12 @@ describe('whitelist', function() {
     { args: 'aws.amazon.com', expected: false },
     { args: 'compute.amazonaws.com', expected: true },
     { args: 'ap-northeast-1.compute.amazonaws.com', expected: true },
-    { args: 'ec2-127-0-0-1.ap-northeast-1.compute.amazonaws.com', expected: true }
+    { args: 'ec2-127-0-0-1.ap-northeast-1.compute.amazonaws.com', expected: true },
+    { args: '192.168.0.1', expected: true },
+    { args: '192.168.0.2', expected: false },
+    { args: '10.0.0.1', expected: true },
+    { args: '10.0.0.2', expected: true },
+    { args: '10.0.1.1', expected: false }
     ];
 
     tests.forEach(function (test) {
