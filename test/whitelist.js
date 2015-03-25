@@ -24,35 +24,35 @@ describe('whitelist', function() {
     });
 
     var tests = [
-    [ { test: 'test' }, false ],
-    [ [ 'test' ], false ],
-    [ 1, false ],
-    [ 1.0, false ],
-    [ 'test', false ],
-    [ 'com', false ],
-    [ 'github.com', true  ],
-    [ 'api.github.com', false ],
-    [ 'bitbucket.com', true  ],
-    [ 'api.bitbucket.com', false ],
-    [ 'amazon.com', false ],
-    [ 'aws.amazon.com', false ],
-    [ 'compute.amazonaws.com', true ],
-    [ 'ap-northeast-1.compute.amazonaws.com', true ],
-    [ 'ec2-127-0-0-1.ap-northeast-1.compute.amazonaws.com', true ]
+    { args: { test: 'test' }, expected: false },
+    { args: [ 'test' ], expected: false },
+    { args: 1, expected: false },
+    { args: 1.0, expected: false },
+    { args: 'test', expected: false },
+    { args: 'com', expected: false },
+    { args: 'github.com', expected: true  },
+    { args: 'api.github.com', expected: false },
+    { args: 'bitbucket.com', expected: true  },
+    { args: 'api.bitbucket.com', expected: false },
+    { args: 'amazon.com', expected: false },
+    { args: 'aws.amazon.com', expected: false },
+    { args: 'compute.amazonaws.com', expected: true },
+    { args: 'ap-northeast-1.compute.amazonaws.com', expected: true },
+    { args: 'ec2-127-0-0-1.ap-northeast-1.compute.amazonaws.com', expected: true }
     ];
 
     tests.forEach(function (test) {
-      it('should return ' + test[1] + ' when query is ' + test[0], function() {
-        whitelist.isWhite(test[0]).should.equal(test[1]);
+      it('should return ' + test.expected + ' when query is ' + test.args, function() {
+        whitelist.isWhite(test.args).should.equal(test.expected);
       });
     });
 
     tests.filter(function (test) {
-      return typeof test[0] === 'string';
+      return typeof test.args === 'string';
     }).forEach(function (test) {
-      it('should return true when the white list contains wildcard and query is ' + test[0], function() {
+      it('should return true when the white list contains wildcard and query is ' + test.args, function() {
         var wildcard = WhiteList([ '*' ]);
-        wildcard.isWhite(test[0]).should.be.true;
+        wildcard.isWhite(test.args).should.be.true;
       });
     });
 
