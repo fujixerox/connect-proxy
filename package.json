@@ -27,6 +27,7 @@
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.10",
     "mocha": "^2.2.1",
+    "request": "^2.54.0",
     "should": "^5.2.0"
   }
 }

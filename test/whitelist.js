@@ -60,6 +60,5 @@ describe('whitelist', function() {
         wildcard.isWhite(test.args).should.be.true;
       });
     });
-
   });
 });
