@@ -1,5 +1,5 @@
-var WhiteList = require('../lib/whitelist')
-  , should    = require('should');
+var WhiteList = require('../lib/whitelist');
+var should = require('should');
 
 describe('whitelist', function() {
 
@@ -11,7 +11,17 @@ describe('whitelist', function() {
     it('should return false when the white list is initialized with empty array', function() {
       var emptyList = WhiteList([]);
       emptyList.isWhite('test').should.be.false;
-    })
+    });
+
+    it('should return false when the white list is initialized with non array', function() {
+      var emptyList = WhiteList({});
+      emptyList.isWhite('test').should.be.false;
+    });
+
+    it('should return false when the white list is initialized with non string array', function() {
+      var emptyList = WhiteList([0]);
+      emptyList.isWhite('test').should.be.false;
+    });
 
     var tests = [
     [ { test: 'test' }, false ],
@@ -34,17 +44,17 @@ describe('whitelist', function() {
     tests.forEach(function (test) {
       it('should return ' + test[1] + ' when query is ' + test[0], function() {
         whitelist.isWhite(test[0]).should.equal(test[1]);
-      })
-    })
+      });
+    });
 
     tests.filter(function (test) {
       return typeof test[0] === 'string';
     }).forEach(function (test) {
       it('should return true when the white list contains wildcard and query is ' + test[0], function() {
         var wildcard = WhiteList([ '*' ]);
-        wildcard.isWhite(test[0]).should.be.true
-      })
-    })
+        wildcard.isWhite(test[0]).should.be.true;
+      });
+    });
 
-  })
-})
+  });
+});
