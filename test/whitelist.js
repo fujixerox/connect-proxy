@@ -4,22 +4,22 @@ var should = require('should');
 describe('whitelist', function() {
 
   var hosts = [ 'github.com', 'bitbucket.com', '*.amazonaws.com', '192.168.0.1', '10.0.0.*' ];
-  var whitelist = WhiteList(hosts);
+  var whitelist = new WhiteList(hosts);
 
   describe('#isWhite', function() {
 
     it('should return false when the white list is initialized with empty array', function() {
-      var emptyList = WhiteList([]);
+      var emptyList = new WhiteList([]);
       emptyList.isWhite('test').should.be.false;
     });
 
     it('should return false when the white list is initialized with non array', function() {
-      var emptyList = WhiteList({});
+      var emptyList = new WhiteList({});
       emptyList.isWhite('test').should.be.false;
     });
 
     it('should return false when the white list is initialized with non string array', function() {
-      var emptyList = WhiteList([0]);
+      var emptyList = new WhiteList([0]);
       emptyList.isWhite('test').should.be.false;
     });
 
@@ -56,9 +56,10 @@ describe('whitelist', function() {
       return typeof test.args === 'string';
     }).forEach(function (test) {
       it('should return true when the white list contains wildcard and query is ' + test.args, function() {
-        var wildcard = WhiteList([ '*' ]);
+        var wildcard = new WhiteList([ '*' ]);
         wildcard.isWhite(test.args).should.be.true;
       });
     });
+
   });
 });
