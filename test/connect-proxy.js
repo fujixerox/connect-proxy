@@ -74,10 +74,10 @@ describe('ConnectProxy', function () {
     });
 
     var tests = [
-      { args: { protocol: http, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
-      { args: { protocol: http, isWhite: true }, expected: { throughs: [ 'downstream' ] } },
-      { args: { protocol: https, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
-      { args: { protocol: https, isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
+      { args: { protocol: 'http', isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: 'http', isWhite: true }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: 'https', isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: 'https', isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
     ];
 
     tests.forEach(function (test) {
@@ -85,7 +85,7 @@ describe('ConnectProxy', function () {
       var actualThroughs = [];
 
       var server, downstream, upstream;
-      var isHttps = (test.args.protocol === https);
+      var isHttps = (test.args.protocol === 'https');
 
       beforeEach(function startServer(done) {
         if (isHttps) {
