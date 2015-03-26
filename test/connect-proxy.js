@@ -104,8 +104,7 @@ describe('ConnectProxy', function () {
       beforeEach(function startUpStreamProxy(done) {
         upstream = (new Proxy()).on('connect', function () {
           actualThroughs.push('upstream');
-        });
-        upstream.listen(function () {
+        }).listen(function () {
           done();
         });
       });
@@ -117,8 +116,7 @@ describe('ConnectProxy', function () {
           whiteHosts: test.args.isWhite ? [ 'localhost' ] : []
         })).on('connect', function () {
           actualThroughs.push('downstream');
-        });
-        downstream.listen(function () {
+        }).listen(function () {
           done();
         });
       });
@@ -154,8 +152,7 @@ describe('ConnectProxy', function () {
       }).on('error', function (err) {
         err.should.not.be.null;
         done();
-      });
-      proxy.listen(function () {
+      }).listen(function () {
         request({
           uri: 'https://localhost:' + server.address().port,
           proxy: 'http://localhost:' + proxy.address().port
