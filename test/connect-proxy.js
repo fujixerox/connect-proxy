@@ -1,10 +1,12 @@
+'use strict';
+
 var Proxy = require('../lib/connect-proxy');
 
 var http    = require('http')
   , https   = require('https')
   , path    = require('path')
   , fs      = require('fs')
-  , should  = require('should')
+  , should  = require('should') // jshint unused:false
   , request = require('request');
 
 // Becasue this test use Self-Signed Certificate,
@@ -16,37 +18,37 @@ var httpsServerOpts = {
   cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
 };
 
-describe('ConnectProxy', function() {
+describe('ConnectProxy', function () {
 
-  describe('#init', function() {
+  describe('#init', function () {
 
     var tests = [
-    [{}],
+      [{}],
 
-    [{ proxyHost: [ 'test' ] }],
-    [{ proxyPort: [ 'test' ] }],
-    [{ proxyHost: [ 'test' ], proxyPort: [ 'test' ] }],
-    [{ proxyHost: [ 'test' ], whiteHosts: [ 'example.com' ] }],
-    [{ proxyPort: [ 'test' ], whiteHosts: [ 'example.com' ] }],
-    [{ proxyHost: [ 'test' ], proxyPort: [ 'test' ], whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: [ 'test' ] }],
+      [{ proxyPort: [ 'test' ] }],
+      [{ proxyHost: [ 'test' ], proxyPort: [ 'test' ] }],
+      [{ proxyHost: [ 'test' ], whiteHosts: [ 'example.com' ] }],
+      [{ proxyPort: [ 'test' ], whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: [ 'test' ], proxyPort: [ 'test' ], whiteHosts: [ 'example.com' ] }],
 
-    [{ proxyHost: 'proxy.com' }],
-    [{ proxyPort: '80' }],
-    [{ whiteHosts: [ 'example.com' ] }],
-    [{ proxyHost: 'proxy.com', whiteHosts: [ 'example.com' ] }],
-    [{ proxyPort: '80', whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: 'proxy.com' }],
+      [{ proxyPort: '80' }],
+      [{ whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: 'proxy.com', whiteHosts: [ 'example.com' ] }],
+      [{ proxyPort: '80', whiteHosts: [ 'example.com' ] }],
 
-    [{ proxyHost: 'proxy.com', proxyPort: 80 }],
-    [{ proxyHost: 'proxy.com', proxyPort: '80' }],
-    [{ whiteHosts: [] }],
-    [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [] }],
-    [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [] }],
-    [{ whiteHosts: [ 'example.com' ] }],
-    [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [ 'example.com' ] }],
-    [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [ 'example.com' ] }],
-    [{ whiteHosts: [ 'example.com', '*.sample.com' ] }],
-    [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [ 'example.com', '*.sample.com' ] }],
-    [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [ 'example.com', '*.sample.com' ] }]
+      [{ proxyHost: 'proxy.com', proxyPort: 80 }],
+      [{ proxyHost: 'proxy.com', proxyPort: '80' }],
+      [{ whiteHosts: [] }],
+      [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [] }],
+      [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [] }],
+      [{ whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [ 'example.com' ] }],
+      [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [ 'example.com' ] }],
+      [{ whiteHosts: [ 'example.com', '*.sample.com' ] }],
+      [{ proxyHost: 'proxy.com', proxyPort: 80, whiteHosts: [ 'example.com', '*.sample.com' ] }],
+      [{ proxyHost: 'proxy.com', proxyPort: '80', whiteHosts: [ 'example.com', '*.sample.com' ] }]
     ];
 
     tests.forEach(function (test) {
@@ -60,7 +62,7 @@ describe('ConnectProxy', function() {
     });
   });
 
-  describe('#listen', function() {
+  describe('#listen', function () {
 
     it('should be a success to listen by specifying the port', function (done) {
       var proxy = new Proxy();
@@ -72,10 +74,10 @@ describe('ConnectProxy', function() {
     });
 
     var tests = [
-    { args: { protocol: http, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
-    { args: { protocol: http, isWhite: true }, expected: { throughs: [ 'downstream' ] } },
-    { args: { protocol: https, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
-    { args: { protocol: https, isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
+      { args: { protocol: http, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: http, isWhite: true }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: https, isWhite: false }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: https, isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
     ];
 
     tests.forEach(function (test) {
@@ -121,14 +123,14 @@ describe('ConnectProxy', function() {
         });
       });
 
-      it('should be a success to access via ' + (isHttps ? 'https' : 'http') + ' to the host, which ' + (test.args.isWhite ? 'is' : 'isn\'t') + ' a white host' , function (done) {
+      it('should be a success to access via ' + (isHttps ? 'https' : 'http') + ' to the host, which ' + (test.args.isWhite ? 'is' : 'isn\'t') + ' a white host', function (done) {
 
         var uri = (isHttps ? 'https' : 'http') + '://localhost:' + server.address().port;
         request({
           uri: uri,
           proxy: 'http://localhost:' + downstream.address().port
-        }, function(err, res, body) {
-          (err == null).should.be.true;
+        }, function (err, res) {
+          (err === null).should.be.true;
           (200).should.be.exactly(res.statusCode);
           test.expected.throughs.should.eql(actualThroughs);
           done();
@@ -157,7 +159,7 @@ describe('ConnectProxy', function() {
         request({
           uri: 'https://localhost:' + server.address().port,
           proxy: 'http://localhost:' + proxy.address().port
-        }, function() {});
+        }, function () {});
       });
     });
   });

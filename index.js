@@ -9,9 +9,18 @@
  *   i.e. client <-HTTP-> this proxy <-HTTP-> internal git server.
  */
 var whiteHosts   = require('./whitelist.json')
-  , ConnectProxy = require('./lib/connect-proxy')
+  , ConnectProxy = require('./lib/connect-proxy');
 
-process.on('uncaughtException', function(err) {
+function printError(err) {
+  console.error('[' + new Date().toUTCString() + '] ' + err);
+}
+
+function printConnectLog(req) {
+  var address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  console.log('[' + new Date().toUTCString() + '] ' + 'connect from ' + address + ' to ' + req.url);
+}
+
+process.on('uncaughtException', function (err) {
   printError(err);
 });
 
@@ -27,15 +36,6 @@ var proxy = new ConnectProxy({
 });
 proxy.on('connect', printConnectLog);
 proxy.on('error', printError);
-proxy.listen(8080, function() {
+proxy.listen(8080, function () {
   console.log('Starting...');
 });
-
-function printError(err) {
-  console.error('[' + new Date().toUTCString() + '] ' + err);
-}
-
-function printConnectLog(req) {
-  var address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  console.log('[' + new Date().toUTCString() + '] ' + 'connect from ' + address + ' to ' + req.url);
-}
