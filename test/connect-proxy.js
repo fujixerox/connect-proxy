@@ -75,7 +75,7 @@ describe('ConnectProxy', function () {
 
     var tests = [
       { args: { protocol: 'http', isWhite: false }, expected: { throughs: [ 'downstream' ] } },
-      { args: { protocol: 'http', isWhite: true }, expected: { throughs: [ 'downstream' ] } },
+      { args: { protocol: 'http', isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } },
       { args: { protocol: 'https', isWhite: false }, expected: { throughs: [ 'downstream' ] } },
       { args: { protocol: 'https', isWhite: true }, expected: { throughs: [ 'downstream', 'upstream' ] } }
     ];
